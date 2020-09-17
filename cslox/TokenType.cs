@@ -1,5 +1,3 @@
-
-
 namespace cslox
 {
     enum TokenType

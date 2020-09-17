@@ -19,3 +19,6 @@ hi
 > world
 world
 ```
+
+## Day 3
+Got to section 4.5.2 tonight. Implemented basis for a scanner and could theoretically parse single character tokens.

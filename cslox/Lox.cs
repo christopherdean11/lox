@@ -3,7 +3,7 @@ using System.IO;
 
 namespace cslox
 {
-    class Program
+    class Lox
     {
         static bool hadError = false;
         static void Main(string[] args)
@@ -65,6 +65,7 @@ namespace cslox
 
         static void report(int line, String where, String message){
             Console.WriteLine($"[Line {line}] Error {where}: {message}");
+            hadError = true;
         }
     }   
 }
