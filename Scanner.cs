@@ -60,16 +60,58 @@ namespace cslox
                 case '\n':
                     line++;
                     break;
-
-
+                case '"': stringToken(); break;
                 default:
-                    Lox.error(line, "Unexpected character.");   
+                    if (isDigit(c)){
+                        numberToken();
+                    } else {
+                        Lox.error(line, "Unexpected character.");   
+                    }
             }
+        }
+
+        private void stringToken(){
+            while (peek() != '"' && !isAtEnd()){
+                if (peek() == '\n') line++;
+                advance();
+            }
+            if (isAtEnd()){
+                Lox.error("Unterminated string found at end of file");
+            }
+            // advance one more to capture the closing " that was found by peek()
+            advance();
+
+            // strip the " from beginning and end of the token before adding token
+            string s = new string(source.Substring(start + 1, current - 1));
+            addToken(TokenType.STRING, s);
+        }
+
+        private void numberToken(){
+            while (isDigit(peek())){
+                advance();
+            }
+            // look for fractional part
+            if (peek() == '.' && isDigit(peekNext())){
+                // consume the dot
+                advance();
+                while (isDigit(peek())) advance();
+            }
+            double d = new System.Double.Parse(source.Substring(start, current));
+            addToken(TokenType.NUMBER, d);
+        }
+
+        private bool isDigit(char c){
+            return c >= '0' && c <= '9';
         }
 
         private char peek(){
             if (isAtEnd()) return '\0';
             return source.Substring(current,1);
+        }
+
+        private char peekNext(){
+            if (current + 1 >= source.Length ) return '\0';
+            return source.Substring(current+1,1);
         }
 
         private char advance(){
