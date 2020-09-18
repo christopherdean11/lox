@@ -20,7 +20,7 @@ namespace cslox
                 start = current;
                 scanToken();
             }
-            tokens.Add(new Token(EOF,"", null, null));
+            tokens.Add(new Token(TokenType.EOF,"", null, null));
             return tokens;
         }
 
@@ -28,25 +28,64 @@ namespace cslox
             char c = advance();
             switch (c)
             {
-                case '(': addToken(TokenType.LEFT_PAREN);
-                case ')': addToken(TokenType.RIGHT_PAREN);
-                case '{': addToken(TokenType.LEFT_BRACE);
-                case '}': addToken(TokenType.RIGHT_BRACE);
-                case ',': addToken(TokenType.COMMA);
-                case '.': addToken(TokenType.DOT);
-                case '-': addToken(TokenType.MINUS);
-                case '+': addToken(TokenType.PLUS);
-                case '*': addToken(TokenType.STAR);
-                case ';': addToken(TokenType.SEMICOLON);   
+                case '(': addToken(TokenType.LEFT_PAREN); break;
+                case ')': addToken(TokenType.RIGHT_PAREN); break;
+                case '{': addToken(TokenType.LEFT_BRACE); break;
+                case '}': addToken(TokenType.RIGHT_BRACE); break;
+                case ',': addToken(TokenType.COMMA); break;
+                case '.': addToken(TokenType.DOT); break;
+                case '-': addToken(TokenType.MINUS); break;
+                case '+': addToken(TokenType.PLUS); break;
+                case '*': addToken(TokenType.STAR); break;
+                case ';': addToken(TokenType.SEMICOLON); break; 
+                case '!': addToken(matchNext("=") ? TokenType.BANG_EQUAL : TokenType.BANG); break;
+                case '=': addToken(matchNext("=") ? TokenType.EQUAL_EQUAL : TokenType.EQUAL); break;
+                case '<': addToken(matchNext("=") ? TokenType.LESS_EQUAL : TokenType.LESS); break;
+                case '>': addToken(matchNext("=") ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
+                case '/':
+                    if (matchNext('/')){
+                        // its a comment for the rest of the line
+                        while (peek() != '\n' && ~isAtEnd()){
+                            // get next character as long as not at the end of the line or end of file
+                            advance();
+                        }
+                    } else {
+                        addToken(TokenType.SLASH);
+                    }
+                case ' ':
+                case '\t':
+                case '\r':
+                    // ignore whitespace
+                    break;
+                case '\n':
+                    line++;
+                    break;
+
 
                 default:
                     Lox.error(line, "Unexpected character.");   
             }
         }
 
+        private char peek(){
+            if (isAtEnd()) return '\0';
+            return source.Substring(current,1);
+        }
+
         private char advance(){
             current++;
             return source.Substring(current-1, 1);
+        }
+
+        private bool matchNext(char expected){
+            if (isAtEnd()) return false;
+            if (source.Substring(current,1) != expected) return false;
+
+            // otherwise it is a match so increment current
+            current++;
+            // could call advance() here instead to be more clear
+            // advance();
+            return true;
         }
 
         private void addToken(TokenType type){
