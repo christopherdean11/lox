@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace cslox
 {
-    class Lox
+    public class Lox
     {
         static bool hadError = false;
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             if (args.Length > 1){
                 Console.WriteLine("Usage: cslox [script[");
@@ -43,27 +44,27 @@ namespace cslox
             }
         }
 
-        private static void run(String source){
-            Console.WriteLine(source);
-        }
-
-        // private static void run2(String source){
-
-        //     // not yet implemented
-        //     Scanner scanner = new Scanner(source);
-        //     List<Token> tokens = scanner.scanTokens();
-
-        //     // print tokens while getting started
-        //     foreach (Token token in tokens){
-        //         Console.WriteLine(token);
-        //     }
+        // private static void run(String source){
+        //     Console.WriteLine(source);
         // }
 
-        static void error(int line, String message){
+        private static void run(String source){
+
+            // not yet implemented
+            Scanner scanner = new Scanner(source);
+            List<Token> tokens = scanner.scanTokens();
+
+            // print tokens while getting started
+            foreach (Token token in tokens){
+                Console.WriteLine(token);
+            }
+        }
+
+        public static void error(int line, String message){
             report(line, "", message);
         }
 
-        static void report(int line, String where, String message){
+        private static void report(int line, String where, String message){
             Console.WriteLine($"[Line {line}] Error {where}: {message}");
             hadError = true;
         }

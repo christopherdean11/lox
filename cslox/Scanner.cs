@@ -1,26 +1,45 @@
 using System.Collections;
+using System.Collections.Generic;
 
 namespace cslox
 {
-    class Scanner
+    public class Scanner
     {
         private readonly string source;
-        private readonly List<Token> tokens = new ArrayList();
+        private readonly List<Token> tokens = new List<Token>();
         private int start = 0;
         private int current = 0;
         private int line = 1;
+        private static readonly Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>(){
+            {"and", TokenType.AND},
+            {"class", TokenType.CLASS},
+            {"else", TokenType.ELSE},
+            {"false", TokenType.FALSE},
+            {"for", TokenType.FOR},
+            {"fun", TokenType.FUN},
+            {"if", TokenType.IF},
+            {"nil", TokenType.NIL},
+            {"or", TokenType.OR},
+            {"print", TokenType.PRINT},
+            {"return", TokenType.RETURN},
+            {"super", TokenType.SUPER},
+            {"this", TokenType.THIS},
+            {"true", TokenType.TRUE},
+            {"var", TokenType.VAR},
+            {"while", TokenType.WHILE}
+        };
 
-        Scanner(string source){
+        public Scanner(string source){
             this.source = source;
         }
 
-        List<Token> scanTokens(){
+        public List<Token> scanTokens(){
             while (!isAtEnd()){
                 // beginning of the next lexeme
                 start = current;
                 scanToken();
             }
-            tokens.Add(new Token(TokenType.EOF,"", null, null));
+            tokens.Add(new Token(TokenType.EOF,"", null, -1));
             return tokens;
         }
 
@@ -38,20 +57,21 @@ namespace cslox
                 case '+': addToken(TokenType.PLUS); break;
                 case '*': addToken(TokenType.STAR); break;
                 case ';': addToken(TokenType.SEMICOLON); break; 
-                case '!': addToken(matchNext("=") ? TokenType.BANG_EQUAL : TokenType.BANG); break;
-                case '=': addToken(matchNext("=") ? TokenType.EQUAL_EQUAL : TokenType.EQUAL); break;
-                case '<': addToken(matchNext("=") ? TokenType.LESS_EQUAL : TokenType.LESS); break;
-                case '>': addToken(matchNext("=") ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
+                case '!': addToken(matchNext('=') ? TokenType.BANG_EQUAL : TokenType.BANG); break;
+                case '=': addToken(matchNext('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL); break;
+                case '<': addToken(matchNext('=') ? TokenType.LESS_EQUAL : TokenType.LESS); break;
+                case '>': addToken(matchNext('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
                 case '/':
                     if (matchNext('/')){
                         // its a comment for the rest of the line
-                        while (peek() != '\n' && ~isAtEnd()){
+                        while (peek() != '\n' && !isAtEnd()){
                             // get next character as long as not at the end of the line or end of file
                             advance();
                         }
                     } else {
                         addToken(TokenType.SLASH);
                     }
+                    break;
                 case ' ':
                 case '\t':
                 case '\r':
@@ -64,9 +84,13 @@ namespace cslox
                 default:
                     if (isDigit(c)){
                         numberToken();
-                    } else {
+                    } else if (isAlpha(c)){
+                        identifier();
+                    }
+                     else {
                         Lox.error(line, "Unexpected character.");   
                     }
+                    break;
             }
         }
 
@@ -76,7 +100,7 @@ namespace cslox
                 advance();
             }
             if (isAtEnd()){
-                Lox.error("Unterminated string found at end of file");
+                Lox.error(line, "Unterminated string found at end of file");
             }
             // advance one more to capture the closing " that was found by peek()
             advance();
@@ -96,7 +120,7 @@ namespace cslox
                 advance();
                 while (isDigit(peek())) advance();
             }
-            double d = new System.Double.Parse(source.Substring(start, current));
+            double d = System.Convert.ToDouble(source.Substring(start, current));
             addToken(TokenType.NUMBER, d);
         }
 
@@ -104,24 +128,50 @@ namespace cslox
             return c >= '0' && c <= '9';
         }
 
+        private void identifier(){
+            while (isAlphaNumeric(peek())) advance();
+            string text = source.Substring(start, current);
+            TokenType type;
+            // try to get the value in "text" from the keywords dictionary
+            // if if succeeds, type is updated as an out param
+            // if it fails, it will return false, and then set type 
+            // to an identifier
+            if (!keywords.TryGetValue(text, out type)){
+                type = TokenType.IDENTIFER;
+            }
+
+            addToken(type);
+        }
+
+        private bool isAlpha(char c){
+            return (c >= 'a' && c <= 'z') ||
+                   (c >= 'A' && c <= 'Z') ||
+                   c == '_';
+        }
+
+        private bool isAlphaNumeric(char c){
+            return isAlpha(c) || isDigit(c);
+        }
+
+
         private char peek(){
             if (isAtEnd()) return '\0';
-            return source.Substring(current,1);
+            return source[current];
         }
 
         private char peekNext(){
             if (current + 1 >= source.Length ) return '\0';
-            return source.Substring(current+1,1);
+            return source[current+1];
         }
 
         private char advance(){
             current++;
-            return source.Substring(current-1, 1);
+            return source[current-1];
         }
 
         private bool matchNext(char expected){
             if (isAtEnd()) return false;
-            if (source.Substring(current,1) != expected) return false;
+            if (source[current] != expected) return false;
 
             // otherwise it is a match so increment current
             current++;

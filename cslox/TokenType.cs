@@ -1,6 +1,6 @@
 namespace cslox
 {
-    enum TokenType
+    public enum TokenType
     {
         // SINGLE CHAR TOKENS
         LEFT_PAREN, RIGHT_PAREN, 
