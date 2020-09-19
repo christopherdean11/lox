@@ -106,7 +106,8 @@ namespace cslox
             advance();
 
             // strip the " from beginning and end of the token before adding token
-            string s = new string(source.Substring(start + 1, current - 1));
+            int len = (current-1) - (start+1) + 1;
+            string s = new string(source.Substring(start + 1, len));
             addToken(TokenType.STRING, s);
         }
 
@@ -120,7 +121,8 @@ namespace cslox
                 advance();
                 while (isDigit(peek())) advance();
             }
-            double d = System.Convert.ToDouble(source.Substring(start, current));
+            int len = current - start;
+            double d = System.Convert.ToDouble(source.Substring(start, len));
             addToken(TokenType.NUMBER, d);
         }
 
@@ -185,7 +187,8 @@ namespace cslox
         }
 
         private void addToken(TokenType type, object literal){
-            string text = source.Substring(start, current);
+            int len = current - start;
+            string text = source.Substring(start, len);
             tokens.Add(new Token(type, text, literal, line));
         }
 

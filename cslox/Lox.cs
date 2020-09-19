@@ -56,7 +56,7 @@ namespace cslox
 
             // print tokens while getting started
             foreach (Token token in tokens){
-                Console.WriteLine(token);
+                Console.WriteLine(token.lexeme);
             }
         }
 
