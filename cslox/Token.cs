@@ -13,8 +13,8 @@ namespace cslox
             this.literal = literal;
             this.line = line;
         }
-        public string toString(){
-            return $"{type} {lexeme} {literal}";
+        public override string ToString(){
+            return $"Type: {type}\tLexeme: {lexeme}\tLiteralValue: {literal}\tLine: {line}";
         }
     }
 }

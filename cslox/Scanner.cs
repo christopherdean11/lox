@@ -132,7 +132,8 @@ namespace cslox
 
         private void identifier(){
             while (isAlphaNumeric(peek())) advance();
-            string text = source.Substring(start, current);
+            int len = (current-1) - (start+1) + 1;
+            string text = source.Substring(start, len);
             TokenType type;
             // try to get the value in "text" from the keywords dictionary
             // if if succeeds, type is updated as an out param
