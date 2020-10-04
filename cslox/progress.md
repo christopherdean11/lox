@@ -36,3 +36,6 @@ s = "hi";
 char c = s[1]
 ````
 also needed to add `public` to class definitions, constructors, and some methods to build correctly
+
+## Day 6
+Adding Expr.cs to begin building the syntax tree. Used the java example from the book but wrote a python script to automate the process of creating `Expr.cs`
